@@ -66,7 +66,7 @@ handle (expr) {
 |`<`|`int_expr < int_expr`| Compare deux expressions entières et retourne True si l'expression de gauche est plus petite que celle de droite.|
 |`<=`|`int_expr <= int_expr`| Compare deux expressions entières et retourne True si l'expression de gauche est plus petite ou égale à celle de droite.|
 |`&`|`bool_expr & bool_expr`| Compare deux expressions booléennes et retourne True si les deux expressions valent True.
-|`|`|`bool_expr | bool_expr`| Compare deux expressions booléennes et retourne True si une des deux expressions valent True
+|`\|`|`bool_expr \| bool_expr`| Compare deux expressions booléennes et retourne True si une des deux expressions valent True
 
 
 # Remarques
