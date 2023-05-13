@@ -5,13 +5,13 @@ module Lexer (Token(..),lexer) where
 %wrapper "basic"
 
 -- REGULAR EXPRESSIONS
-$digit = 0-9
+$digits = [0-9]
 $alpha = [a-zA-Z] 
 $alnum = [$alpha$digits]
 
 @id = $alpha $alnum*
 @comment = \#
-@multilinecomment = @comment"*"(.|\n)*"*"@comment
+@multicom = "/*"(.|\n)*"*/"
 @integer = $digits+
 @boolean = (true) | (false)
 @string = \"[^\"]*\"
@@ -19,55 +19,55 @@ $alnum = [$alpha$digits]
 -- RULES OF LEXERS
 tokens :-
 -- SKIP WHITESPACE AND COMMENTS
-    $white+                         { skip }
-    @comment                        { skip }
-    @multilinecomment               { skip }
+    $white+                         ;
+    @comment.*                      ;
+    @multicom                       ;
 
 -- BOOLEANS
-    true                            { \s -> TokenTrue }
-    false                           { \s -> TokenFalse }
+    true                            { \s -> TTrue }
+    false                           { \s -> TFalse }
 
 -- TYPES
     Int                             { \s -> TInt }
-    Bool                            { \s -> TokenBool }
-    Func                            { \s -> TFunc }
+    Bool                            { \s -> TBool }
+    Func                            { \s -> TFFunc }
 
 -- KEYWORDS
-    let                             { \s -> TokenLet }
-    in                              { \s -> TokenIn }
-    func                            { \s -> TokenFunc }
-    return                          { \s -> TokenReturn }
-    match                           { \s -> TokenMatch }
-    with                            { \s -> TokenWith }
-    if                              { \s -> TokenIf }
-    then                            { \s -> TokenThen }
-    else                            { \s -> TokenElse }
+    let                             { \s -> TLet }
+    in                              { \s -> TIn }
+    func                            { \s -> TFunc }
+    return                          { \s -> TReturn }
+    match                           { \s -> TMatch }
+    with                            { \s -> TWith }
+    if                              { \s -> TIf }
+    then                            { \s -> TThen }
+    else                            { \s -> TElse }
 
 -- SYMBOLS
-    "->"                            { \s -> TokenArrow }
-    "=="|"!="|"<="|">="|"&&"|"||"   { \s -> TokenOp s }
-    [\+\-\*\/\%\!\=\<\>\|\&]        { \s -> TokenOp s }
-    "("                             { \s -> TokenParL }
-    ")"                             { \s -> TokenParR }
-    "{"                             { \s -> TokenBL }
-    "}"                             { \s -> TokenBR }
-    ","                             { \s -> TokenComma }
-    ";"                             { \s -> TokenSemicolon }
-    "_"                             { \s -> TokenUnderscore }
-    "$"                             { \s -> TokenDollar }
+    "("                             { \s -> TParL }
+    ")"                             { \s -> TParR }
+    "{"                             { \s -> TBL }
+    "}"                             { \s -> TBR }
+    ","                             { \s -> TComma }
+    ";"                             { \s -> TSemicolon }
+    "_"                             { \s -> TUnderscore }
+    "$"                             { \s -> TDollar }
+    "->"                            { \s -> TArrow }
+    "=="|"!="|"<="|">="|"&&"|"||"   { \s -> TOp s }
+    [\+\-\*\/\%\!\=\<\>\|\&]        { \s -> TOp s }
 
 -- NUMBERS AND IDENTIFIERS
-    $digit+                         { \s -> TokenNum (read s) }
-    @id                             { \s -> TokenIdent s }
+    $digits+                         { \s -> TNum (read s) }
+    @id                             { \s -> TIdent s }
 {
 
 -- The token type:
 data Token
 -- TYPES
-    | TInt
+    = TInt
     | TBool
 -- KEYWORDS
-    = TLet
+    | TLet
     | TIn
     | TFunc
     | TReturn
