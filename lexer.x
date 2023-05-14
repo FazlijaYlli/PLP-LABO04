@@ -30,14 +30,11 @@ tokens :-
     bool                            { \s -> TBool }
 
 -- KEYWORDS
-    let                             { \s -> TLet }
-    in                              { \s -> TIn }
     func                            { \s -> TFunc }
     return                          { \s -> TReturn }
     handle                          { \s -> THandle }
     trivial                         { \s -> TTrivial}
     snap                            { \s -> TSnap }
-    with                            { \s -> TWith }
     if                              { \s -> TIf }
     otherwise                       { \s -> TOtherwise }
     fixed                           { \s -> TFixed }
@@ -63,14 +60,11 @@ data Token
     = TInt
     | TBool
 -- KEYWORDS
-    | TLet
-    | TIn
     | TFunc
     | TReturn
     | THandle
     | TTrivial
     | TSnap
-    | TWith
     | TIf
     | TOtherwise
     | TTrue
