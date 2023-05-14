@@ -4,12 +4,9 @@
 |`int`|Entier appartenant à l'ensemble Z|
 |`bool`|Booléen (True \| False)|
 
-
-
 |**Variables**|**Description**|
 |---|---|
 |`fixed type var expr`|Déclaration d'une variable constante nommée var.|
-
 
 |**Fonctions**|**Description**|
 |---|---|
@@ -67,7 +64,6 @@ handle (expr) {
 |`<=`|`int_expr <= int_expr`| Compare deux expressions entières et retourne True si l'expression de gauche est plus petite ou égale à celle de droite.|
 |`&`|`bool_expr & bool_expr`| Compare deux expressions booléennes et retourne True si les deux expressions valent True.
 |`\|`|`bool_expr \| bool_expr`| Compare deux expressions booléennes et retourne True si une des deux expressions valent True
-
 
 # Remarques
 - `{ ... }` Signifie un bloc de code de plusieurs lignes.
