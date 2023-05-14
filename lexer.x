@@ -49,7 +49,7 @@ tokens :-
     "}"                             { \s -> TBR }
     ","                             { \s -> TComma }
     "=>"                            { \s -> TArrow } -- Utilisé dans le handle
-    "=="|"!="|"<="|">="|"&&"|"||"   { \s -> TOp s }
+    "="|"=/="|"<="|">="|"&"|"|"     { \s -> TOp s }
     [\+\-\*\/\%\!\=\<\>\|\&]        { \s -> TOp s }
 
 -- NUMBERS AND IDENTIFIERS
