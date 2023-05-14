@@ -13,8 +13,6 @@ $alnum = [$alpha$digits]
 @comment = \#
 @multicom = "/*"(.|\n)*"*/"
 @integer = $digits+
-@boolean = (true) | (false)
-@string = \"[^\"]*\"
 
 -- RULES OF LEXERS
 tokens :-
@@ -24,24 +22,25 @@ tokens :-
     @multicom                       ;
 
 -- BOOLEANS
-    true                            { \s -> TTrue }
-    false                           { \s -> TFalse }
+    True                            { \s -> TTrue }
+    False                           { \s -> TFalse }
 
 -- TYPES
-    Int                             { \s -> TInt }
-    Bool                            { \s -> TBool }
-    Func                            { \s -> TFFunc }
+    int                             { \s -> TInt }
+    bool                            { \s -> TBool }
 
 -- KEYWORDS
     let                             { \s -> TLet }
     in                              { \s -> TIn }
     func                            { \s -> TFunc }
     return                          { \s -> TReturn }
-    match                           { \s -> TMatch }
+    handle                          { \s -> THandle }
+    trivial                         { \s -> TTrivial}
+    snap                            { \s -> TSnap }
     with                            { \s -> TWith }
     if                              { \s -> TIf }
-    then                            { \s -> TThen }
-    else                            { \s -> TElse }
+    otherwise                       { \s -> TOtherwise }
+    fixed                           { \s -> TFixed }
 
 -- SYMBOLS
     "("                             { \s -> TParL }
@@ -49,10 +48,7 @@ tokens :-
     "{"                             { \s -> TBL }
     "}"                             { \s -> TBR }
     ","                             { \s -> TComma }
-    ";"                             { \s -> TSemicolon }
-    "_"                             { \s -> TUnderscore }
-    "$"                             { \s -> TDollar }
-    "->"                            { \s -> TArrow }
+    "=>"                            { \s -> TArrow } -- Utilisé dans le handle
     "=="|"!="|"<="|">="|"&&"|"||"   { \s -> TOp s }
     [\+\-\*\/\%\!\=\<\>\|\&]        { \s -> TOp s }
 
@@ -71,16 +67,16 @@ data Token
     | TIn
     | TFunc
     | TReturn
-    | TMatch
+    | THandle
+    | TTrivial
+    | TSnap
     | TWith
     | TIf
-    | TThen
-    | TElse
+    | TOtherwise
     | TTrue
     | TFalse
+    | TFixed
 -- FUNCTIONS
-    | TFFunc
-    | TArrow
     | TOp String
     | TIdent String
     | TNum Int
@@ -91,9 +87,7 @@ data Token
     | TBR
 -- SPECIAL CHARACTERS
     | TComma
-    | TSemicolon
-    | TUnderscore
-    | TDollar
+    | TArrow
   deriving (Eq, Show)
 
 -- Function taken from another group's code because i didn't know how to invoke alex.

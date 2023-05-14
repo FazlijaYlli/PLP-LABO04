@@ -71,5 +71,5 @@ handle (expr) {
 - `int_expr` est une expression de type `int`.
 - `bool_expr` est une expression de type `bool`.
 - les noms des variables sont uniquement alphabétiques. [A-Za-z]
-- `//` permets de faire un commentaire monoligne
-- `#` permets de faire un commentaire multiligne. Le commentaire s'arrête dès qu'un autre `#` est rencontré.
+- `#` permets de faire un commentaire monoligne
+- `/*` permets de faire un commentaire multiligne. Le commentaire s'arrête dès qu'un `*/` est rencontré.
