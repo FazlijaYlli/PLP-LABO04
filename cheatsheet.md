@@ -3,6 +3,7 @@
 |---|---|
 |`int`|Entier appartenant à l'ensemble Z|
 |`bool`|Booléen (True \| False)|
+|`(type, type)`|Tuple de plusieurs types|
 
 |**Variables**|**Description**|
 |---|---|
@@ -67,7 +68,7 @@ handle (expr) {
 
 # Remarques
 - `{ ... }` Signifie un bloc de code de plusieurs lignes.
-- Les expressions parenthésées doivent retourner un résultat avant de pouvoir exécuter une autre action.
+- Les expressions parenthésées doivent être traités avant les opérations à l'extérieur des paranthèses.
 - `int_expr` est une expression de type `int`.
 - `bool_expr` est une expression de type `bool`.
 - les noms des variables sont uniquement alphabétiques. [A-Za-z]
