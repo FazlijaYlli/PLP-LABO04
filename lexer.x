@@ -17,6 +17,7 @@ $alnum = [$alpha$digits]
 -- RULES OF LEXERS
 tokens :-
 -- SKIP WHITESPACE AND COMMENTS
+    \n                              { \s -> TInstrEnd }
     $white+                         ;
     @comment.*                      ;
     @multicom                       ;
@@ -28,6 +29,7 @@ tokens :-
 -- TYPES
     int                             { \s -> TInt }
     bool                            { \s -> TBool }
+    void                            { \s -> TVoid }
 
 -- KEYWORDS
     func                            { \s -> TFunc }
@@ -50,7 +52,7 @@ tokens :-
     [\+\-\*\/\%\!\=\<\>\|\&]        { \s -> TOp s }
 
 -- NUMBERS AND IDENTIFIERS
-    $digits+                         { \s -> TNum (read s) }
+    $digits+                        { \s -> TNum (read s) }
     @id                             { \s -> TIdent s }
 {
 
@@ -59,6 +61,7 @@ data Token
 -- TYPES
     = TInt
     | TBool
+    | TVoid
 -- KEYWORDS
     | TFunc
     | TReturn
@@ -82,6 +85,7 @@ data Token
 -- SPECIAL CHARACTERS
     | TComma
     | TArrow
+    | TInstrEnd
   deriving (Eq, Show)
 
 -- Function taken from another group's code because i didn't know how to invoke alex.
