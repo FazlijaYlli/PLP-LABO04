@@ -21,7 +21,7 @@
 |---|---|
 |Entier |`5, -42, 31, (598), ...`|
 |Booléen|True \| False|
-|Tuples|(), (expr, expr), ...|
+|Tuples|(), (expr, expr), (expr, expr, expr, ...), ...|
 
 |**Fonctions**|**Description**|
 |---|---|
