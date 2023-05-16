@@ -13,12 +13,13 @@ $alnum = [$alpha$digits]
 @comment = \#
 @multicom = "/*"(.|\n)*"*/"
 @integer = $digits+
+@space = (\ |\t)
 
 -- RULES OF LEXERS
 tokens :-
 -- SKIP WHITESPACE AND COMMENTS
     \n                              { \s -> TInstrEnd }
-    $white+                         ;
+    @space*                         ;
     @comment.*                      ;
     @multicom                       ;
 
