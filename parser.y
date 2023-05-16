@@ -1,5 +1,6 @@
 {
 module Parser where
+import Lexer
 }
 
 %name parse
@@ -17,17 +18,16 @@ module Parser where
   bool                            { TBool }
 
 -- KEYWORDS
-  let                             { TLet }
-  in                              { TIn }
   func                            { TFunc }
   return                          { TReturn }
   handle                          { THandle }
-  trivial                         { TTrivial}
+  trivial                         { TTrivial }
   snap                            { TSnap }
-  with                            { TWith }
   if                              { TIf }
   otherwise                       { TOtherwise }
   fixed                           { TFixed }
+  ident                           { TIdent $$ }
+  num                             { TNum $$ }
 
 -- SYMBOLS
   "("                             { TParL }
@@ -36,132 +36,115 @@ module Parser where
   "}"                             { TBR }
   ","                             { TComma }
   "=>"                            { TArrow } -- Utilisé dans le handle
-  "="                             { TOp $$ }
-  "=/="                           { TOp $$ }
-  "<="                            { TOp $$ }
-  ">="                            { TOp $$ }
-  "&"                             { TOp $$ }
-  "|"                             { TOp $$ }
-  '+'                             { TOp $$ }
-  '-'                             { TOp $$ }
-  '*'                             { TOp $$ }
-  '/'                             { TOp $$ }
-  '%'                             { TOp $$ }
-  '!'                             { TOp $$ }
-  '='                             { TOp $$ }
-  '<'                             { TOp $$ }
-  '>'                             { TOp $$ }
-  '|'                             { TOp $$ }
-  '&'                             { TOp $$ }
+  "="                             { TOp "=" }
+  "=/="                           { TOp "=/=" }
+  "<="                            { TOp "<=" }
+  ">="                            { TOp ">=" }
+  "&"                             { TOp "&" }
+  "|"                             { TOp "|" }
+  "+"                             { TOp "+" }
+  "-"                             { TOp "-" }
+  "*"                             { TOp "*" }
+  "/"                             { TOp "/" }
+  "%"                             { TOp "%" }
+  "!"                             { TOp "!" }
+  "<"                             { TOp "<" }
+  ">"                             { TOp ">" }
 
-Type
-  : Int                     { Int $1 }
-  | Bool                    { Bool $1 }
-  
-Exp   
-  : fixed Type var Exp      { Const $2 $3 $4 }
-  | Expr                    { Expr $1 }
+%left "&" "|"
+%nonassoc ">" "<" ">=" "<=" "=" "=/="
+%left "+" "-"
+%left "*" "/" "%"
+%right "!"
+%%
 
-Expr  
-  : Expr '+' Term           { Plus $1 $3 }
-  | Expr '-' Term           { Minus $1 $3 }
-  | Expr '=' Term           { Equal $1 $3 }
-  | Expr "=/=" Term         { NotEqual $1 $3 }
-  | '!' Expr                { Not $2}
-  | Expr "<=" Term          { BelowEqual $1 $3 }
-  | Expr '<' Term           { Below $1 $3 }
-  | Expr ">=" Term          { AboveEqual $1 $3 }
-  | Expr '>' Term           { Above $1 $3 }
-  | Expr '|' Term           { Or $1 $3 }
-  | Term                    { Term $1 }
+Expr
+  : fixed VarExpr               { Cnst $2 }
+  | "(" AnyExpr "," AnyExpr ")" { Tupl $2 $4 }
+  | "(" ")"                     { TupE }
+  | "(" Expr ")"                { Pars $2 }
+  | AnyExpr                     { Expr $1 }
 
-Term  
-  : Term '*' Factor         { Times $1 $3 }
-  | Term '/' Factor         { Div $1 $3 }
-  | Term '%' Factor         { Rest $1 $3}
-  | Term '&' Factor         { And $1 $3 }
-  | Factor                  { Factor $1 }
+AnyExpr
+  | IntExpr                     { TupI $1 }
+  | BoolExpr                    { TupB $1 }
 
-Factor
-  : int                     { Int $1 }
-  | bool                    { Bool $1 }
-  | var                     { Var $1 }
-  | '(' Exp ')'             { Pars $2 }
+VarExpr
+  : bool ident BoolExpr         { Bool $2 $3 }
+  | int ident IntExpr           { Intg $2 $3 }
 
-n   : t_1 ... t_n   { E }
+BoolExpr
+  : "!" BoolExpr                { BNot $2 }
+  | IntExpr "=" IntExpr         { BEql $1 $3 }
+  | IntExpr "=/=" IntExpr       { BNEq $1 $3 }
+  | IntExpr "<" IntExpr         { BBlw $1 $3 }
+  | IntExpr "<=" IntExpr        { BBlE $1 $3 }
+  | IntExpr ">" IntExpr         { BAbv $1 $3 }
+  | IntExpr ">=" IntExpr        { BAbE $1 $3 }
+  | BoolExpr "|" BoolExpr       { BOrr $1 $3 }
+  | BoolExpr "&" BoolExpr       { BAnd $1 $3 }
+  | True                        { LBol True }
+  | False                       { LBol False }
+  | ident                       { BVar $1 }
+  | "(" BoolExpr ")"            { BPar $2 }
+
+IntExpr
+  : IntExpr "+" IntExpr       { IAdd $1 $3 }
+  | IntExpr "-" IntExpr       { ISub $1 $3 }
+  | IntExpr "*" IntExpr       { IMul $1 $3 }
+  | IntExpr "/" IntExpr       { IDiv $1 $3 }
+  | IntExpr "%" IntExpr       { IRes $1 $3 }
+  | num                       { LInt $1 }
+  | ident                     { IVar $1 }
+  | "(" IntExpr ")"           { IPar $2 }
 
 {
-  parseError :: [Token] -> a
-    parseError _ = error "Parse error"
 
-  data Type
-    = Int Int
-    | Bool Bool
+parseError :: [Token] -> a
+parseError _ = error "Parse error"
+
+data Expr
+    = Cnst VarExpr
+    | Tupl AnyExpr AnyExpr
+    | TupE
+    | Pars Expr
+    | Expr AnyExpr
   deriving Show
 
-  data Exp
-    = Const Type String Exp
-    | Expr Expr
+data AnyExpr
+    = TupV String
+    | TupI IntExpr
+    | TupB BoolExpr
   deriving Show
 
-  data Expr
-    = Plus Expr Term
-    | Minus Expr Term
-    | Equal Expr Term
-    | NotEqual Expr Term
-    | Not Expr
-    | BelowEqual Expr Term
-    | Below Expr Term
-    | AboveEqual Expr Term
-    | Above Expr Term
-    | Or Expr Term
-    | Term Term
+data VarExpr
+    = Bool String BoolExpr
+    | Intg String IntExpr
   deriving Show
 
-  data Term
-    = Times Term Factor
-    | Div Term Factor
-    | And Term Factor
-    | Factor Factor
+data BoolExpr
+    = BNot BoolExpr
+    | BEql IntExpr IntExpr
+    | BNEq IntExpr IntExpr
+    | BBlw IntExpr IntExpr
+    | BBlE IntExpr IntExpr
+    | BAbv IntExpr IntExpr
+    | BAbE IntExpr IntExpr
+    | BOrr BoolExpr BoolExpr
+    | BAnd BoolExpr BoolExpr
+    | LBol Bool
+    | BVar String
+    | BPar BoolExpr
   deriving Show
 
-  data Factor
-    = Int Int
-    | Bool Bool
-    | Var String
-    | Pars Exp
+data IntExpr
+    = IAdd IntExpr IntExpr
+    | ISub IntExpr IntExpr
+    | IMul IntExpr IntExpr
+    | IDiv IntExpr IntExpr
+    | IRes IntExpr IntExpr
+    | LInt Int
+    | IVar String
+    | IPar IntExpr
   deriving Show
-
-  -- The token type:
-  data Token
-  -- TYPES
-    = TInt
-    | TBool
-  -- KEYWORDS
-    | TLet
-    | TIn
-    | TFunc
-    | TReturn
-    | THandle
-    | TTrivial
-    | TSnap
-    | TWith
-    | TIf
-    | TOtherwise
-    | TTrue
-    | TFalse
-    | TFixed
-  -- FUNCTIONS
-    | TOp String
-    | TIdent String
-    | TNum Int
-  -- PARENTHESIS
-    | TParL
-    | TParR
-    | TBL
-    | TBR
-  -- SPECIAL CHARACTERS
-    | TComma
-    | TArrow
-  deriving (Eq, Show)
 }
