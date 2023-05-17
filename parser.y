@@ -82,7 +82,6 @@ Types
 Parameters            
   : Parameters "," Parameter                          { $3 : $1 }
   | Parameter                                         { [$1] }
-  | {- empty -}                                       { [] }
 
 Parameter           
   : Type ident                                        { Param $1 $2 }
@@ -131,7 +130,6 @@ Handles
 Args            
   : Args "," Expr                                     { $3 : $1 }
   | Expr                                              { [$1] }
-  | {- empty -}                                       { [] }
 
 Tuple
   : Tuple "," Expr                                    { $3 : $1 }
