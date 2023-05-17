@@ -11,10 +11,9 @@
 
 |**Fonctions**|**Description**|
 |---|---|
-|`type func() f { ... }`|Déclaration d'une fonction f sans paramètres nommée f retournant type|
-|`type func(type param) f { ... }`|Déclaration d'une fonction f à un paramètre nommé param de type 'type' retournant type|
-|`type func(type p1, type p2) f { ... }`|Déclaration d'une fonction f à deux paramètres p1 et p2, les deux de type 'type'.|
-|`void func() f { ... }`|Déclaration d'une fonction f ne prenant aucun paramètre et ne retournant rien|
+|`type func() f expr`|Déclaration d'une fonction f sans paramètres nommée f retournant type|
+|`type func(type param) f expr`|Déclaration d'une fonction f à un paramètre nommé param de type 'type' retournant type|
+|`type func(type p1, type p2) f expr`|Déclaration d'une fonction f à deux paramètres p1 et p2, les deux de type 'type'.|
 
 # Expression
 |**Litéraux**|**Exemples**|
@@ -32,20 +31,17 @@
 |**Conditions**|**Description**|
 |---|---|
 |`if (bool_expr) expr`|Condition qui exécute l'expression si bool_expr vaut True.|
-|`if (bool_expr) { ... }`||
 |`if (bool_expr) expr otherwise expr`|Condition qui exécute une des deux expressions selon le résultat de bool_expr.|
-|`if (bool_expr) { ... } otherwise { ... }`||
 
 ## Exemple pattern matching en utilisant le mot-clé `handle`
 ```C
 // handle prend une expression qu'il va essayer de match avec les cas décrits dans les accolades.
-// snap signifie la sortie du handle. sans snap, la prochaine expression valide sera aussi exécutée.
-// trivial est le cas par défaut qui s'exécute TOUJOURS sauf si l'on rencontre un snap avant.
+// trivial est le cas par défaut qui s'exécute quand aucun autre cas n'est matché.
 // Les cas sont testées de haut en bas.
 handle (expr) {
-    5 => { ... } snap // Si expr vaut 5, on rentre dans ce cas
-    -42, 7 => expr snap // Si expr vaut -42 OU 7, on rentre dans ce cas
-    trivial => expr snap // On rentre TOUJOURS dans ce cas si on y arrive.
+    5 => { ... } // Si expr vaut 5, on rentre dans ce cas
+    -42, 7 => expr // Si expr vaut -42 OU 7, on rentre dans ce cas
+    trivial => expr // On rentre TOUJOURS dans ce cas si on y arrive.
 }
 ```
 
@@ -67,7 +63,6 @@ handle (expr) {
 |`\|`|`bool_expr \| bool_expr`| Compare deux expressions booléennes et retourne True si une des deux expressions valent True
 
 # Remarques
-- `{ ... }` Signifie un bloc de code de plusieurs lignes.
 - Les expressions parenthésées doivent être traités avant les opérations à l'extérieur des paranthèses.
 - `int_expr` est une expression de type `int`.
 - `bool_expr` est une expression de type `bool`.
