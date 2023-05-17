@@ -19,10 +19,8 @@ import Lexer
 
 -- KEYWORDS
   func                            { TFunc }
-  return                          { TReturn }
   handle                          { THandle }
   trivial                         { TTrivial }
-  snap                            { TSnap }
   if                              { TIf }
   otherwise                       { TOtherwise }
   fixed                           { TFixed }
@@ -30,6 +28,7 @@ import Lexer
   num                             { TNum $$ }
 
 -- SYMBOLS
+  "\n"                            { TInstrEnd }
   "("                             { TParL }
   ")"                             { TParR }
   "{"                             { TBL }
@@ -51,100 +50,145 @@ import Lexer
   "<"                             { TOp "<" }
   ">"                             { TOp ">" }
 
-%left "&" "|"
-%nonassoc ">" "<" ">=" "<=" "=" "=/="
+%left "|"
+%left "&"
+%nonassoc "=" "=/="
+%nonassoc ">" "<" ">=" "<="
 %left "+" "-"
 %left "*" "/" "%"
 %right "!"
 %%
 
-Expr
-  : fixed VarExpr               { Cnst $2 }
-  | "(" AnyExpr "," AnyExpr ")" { Tupl $2 $4 }
-  | "(" ")"                     { TupE }
-  | "(" Expr ")"                { Pars $2 }
-  | AnyExpr                     { Expr $1 }
+Instrs
+  : Instrs "\n" Instr                                 { $3 : $1 }
+  | Instr                                             { [$1] }
+  | {- empty -}                                       { [] }
 
-AnyExpr
-  | IntExpr                     { TupI $1 }
-  | BoolExpr                    { TupB $1 }
+Instr
+  : fixed Type ident Expr                             { Cnst $2 $3 $4 }
+  | Type func "(" Parameters ")" ident Expr           { Fct $1 $4 $6 $7 }
+  | Expr                                              { WildExpr $1 }
+  | {- empty -}                                       { EmptyLine }
 
-VarExpr
-  : bool ident BoolExpr         { Bool $2 $3 }
-  | int ident IntExpr           { Intg $2 $3 }
+Type            
+  : int                                               { IntT }
+  | bool                                              { BoolT }
+  | "(" Types ")"                                     { TupleT $2 }
 
-BoolExpr
-  : "!" BoolExpr                { BNot $2 }
-  | IntExpr "=" IntExpr         { BEql $1 $3 }
-  | IntExpr "=/=" IntExpr       { BNEq $1 $3 }
-  | IntExpr "<" IntExpr         { BBlw $1 $3 }
-  | IntExpr "<=" IntExpr        { BBlE $1 $3 }
-  | IntExpr ">" IntExpr         { BAbv $1 $3 }
-  | IntExpr ">=" IntExpr        { BAbE $1 $3 }
-  | BoolExpr "|" BoolExpr       { BOrr $1 $3 }
-  | BoolExpr "&" BoolExpr       { BAnd $1 $3 }
-  | True                        { LBol True }
-  | False                       { LBol False }
-  | ident                       { BVar $1 }
-  | "(" BoolExpr ")"            { BPar $2 }
+Types           
+  : Types "," Type                                    { $3 : $1 }
+  | Type                                              { [$1] }
 
-IntExpr
-  : IntExpr "+" IntExpr       { IAdd $1 $3 }
-  | IntExpr "-" IntExpr       { ISub $1 $3 }
-  | IntExpr "*" IntExpr       { IMul $1 $3 }
-  | IntExpr "/" IntExpr       { IDiv $1 $3 }
-  | IntExpr "%" IntExpr       { IRes $1 $3 }
-  | num                       { LInt $1 }
-  | ident                     { IVar $1 }
-  | "(" IntExpr ")"           { IPar $2 }
+Parameters            
+  : Parameters "," Parameter                          { $3 : $1 }
+  | Parameter                                         { [$1] }
+  | {- empty -}                                       { [] }
+
+Parameter           
+  : Type ident                                        { Param $1 $2 }
+
+Expr            
+  : if "(" Expr ")" Expr                              { If $3 $5 }
+  | if "(" Expr ")" Expr otherwise Expr               { IfElse $3 $5 $7 }
+  | handle "(" Expr ")" "{" Handlers "}"              { Handle $3 $6 }
+  | Expr "=" Expr                                     { Equal $1 $3 }
+  | Expr "=/=" Expr                                   { NotEqual $1 $3 }
+  | Expr "<=" Expr                                    { BelowEqual $1 $3 }
+  | Expr ">=" Expr                                    { AboveEqual $1 $3 }
+  | Expr "<" Expr                                     { Below $1 $3 }
+  | Expr ">" Expr                                     { Above $1 $3 }
+  | Expr "&" Expr                                     { And $1 $3 }
+  | Expr "|" Expr                                     { Or $1 $3 }
+  | Expr "+" Expr                                     { Plus $1 $3 }
+  | Expr "-" Expr                                     { Sub $1 $3 }
+  | Expr "*" Expr                                     { Mult $1 $3 }
+  | Expr "/" Expr                                     { Div $1 $3 }
+  | Expr "%" Expr                                     { Rest $1 $3 }
+  | "!" Expr                                          { Not $2 }
+  | "-" Expr                                          { Neg $2 }
+  | num                                               { Integer $1 }
+  | True                                              { Boolean True }
+  | False                                             { Boolean False }
+  | ident                                             { Symbol $1 }
+  | ident "(" Args ")"                                { FSymbol $1 $3 }
+  | "(" Expr ")"                                      { Parent $2 }
+  | "(" Tuple ")"                                     { Tuple $2 }
+
+Handlers            
+  : Handlers "\n" Handler                             { $3 : $1 }
+  | Handler                                           { [$1] }
+  | {- empty -}                                       { [] }
+
+Handler           
+  : Handles "=>" Expr                                 { Case $1 $3 }
+  | trivial "=>" Expr                                 { Trivial $3 }
+  | {- empty -}                                       { Empty }
+
+Handles           
+  : Handles "," Expr                                  { $3 : $1 }
+  | Expr                                              { [$1] }
+
+Args            
+  : Args "," Expr                                     { $3 : $1 }
+  | Expr                                              { [$1] }
+  | {- empty -}                                       { [] }
+
+Tuple
+  : Tuple "," Expr                                    { $3 : $1 }
+  | Expr                                              { [$1] }
 
 {
 
 parseError :: [Token] -> a
 parseError _ = error "Parse error"
 
+data Instr
+    = Cnst Type String Expr
+    | Fct Type [Parameter] String Expr
+    | WildExpr Expr
+    | EmptyLine
+  deriving Show
+
 data Expr
-    = Cnst VarExpr
-    | Tupl AnyExpr AnyExpr
-    | TupE
-    | Pars Expr
-    | Expr AnyExpr
+    = If Expr Expr
+    | IfElse Expr Expr Expr
+    | Handle Expr [Handler]
+    | Equal Expr Expr
+    | NotEqual Expr Expr
+    | BelowEqual Expr Expr
+    | AboveEqual Expr Expr
+    | Below Expr Expr
+    | Above Expr Expr
+    | And Expr Expr
+    | Or Expr Expr
+    | Plus Expr Expr
+    | Sub Expr Expr
+    | Mult Expr Expr
+    | Div Expr Expr
+    | Rest Expr Expr
+    | Not Expr
+    | Neg Expr
+    | Integer Int
+    | Boolean Bool
+    | Symbol String
+    | FSymbol String [Expr]
+    | Parent Expr
+    | Tuple [Expr]
   deriving Show
 
-data AnyExpr
-    = TupV String
-    | TupI IntExpr
-    | TupB BoolExpr
+data Handler
+    = Case [Expr] Expr
+    | Trivial Expr
+    | Empty
   deriving Show
 
-data VarExpr
-    = Bool String BoolExpr
-    | Intg String IntExpr
+data Type
+    = IntT
+    | BoolT
+    | TupleT [Type]
   deriving Show
 
-data BoolExpr
-    = BNot BoolExpr
-    | BEql IntExpr IntExpr
-    | BNEq IntExpr IntExpr
-    | BBlw IntExpr IntExpr
-    | BBlE IntExpr IntExpr
-    | BAbv IntExpr IntExpr
-    | BAbE IntExpr IntExpr
-    | BOrr BoolExpr BoolExpr
-    | BAnd BoolExpr BoolExpr
-    | LBol Bool
-    | BVar String
-    | BPar BoolExpr
-  deriving Show
-
-data IntExpr
-    = IAdd IntExpr IntExpr
-    | ISub IntExpr IntExpr
-    | IMul IntExpr IntExpr
-    | IDiv IntExpr IntExpr
-    | IRes IntExpr IntExpr
-    | LInt Int
-    | IVar String
-    | IPar IntExpr
+data Parameter
+    = Param Type String
   deriving Show
 }
