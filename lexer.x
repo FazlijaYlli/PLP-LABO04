@@ -17,6 +17,7 @@ $alnum = [$alpha$digits]
 -- RULES OF LEXERS
 tokens :-
 -- SKIP WHITESPACE AND COMMENTS
+    $white*\n                       { \s -> TInstrEnd }
     $white+                         ;
     @comment.*                      ;
     @multicom                       ;
