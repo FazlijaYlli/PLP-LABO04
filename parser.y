@@ -1,4 +1,7 @@
 {
+{-
+  Auteurs : Rui Manuel Mota Carneiro & Ylli Fazlija
+-}
 module Parser where
 import Lexer
 }
@@ -62,18 +65,17 @@ import Lexer
 Instrs
   : Instrs "\n" Instr                                 { $3 : $1 }
   | Instr                                             { [$1] }
-  | {- empty -}                                       { [] }
 
 Instr
   : fixed Type ident Expr                             { Cnst $2 $3 $4 }
-  | Type func "(" Parameters ")" ident Expr           { Fct $1 $4 $6 $7 }
+  | Type func "(" Parameters ")" ident Expr           { Fct $1 (reverse $4) $6 $7 }
   | Expr                                              { WildExpr $1 }
   | {- empty -}                                       { EmptyLine }
 
 Type            
   : int                                               { IntT }
   | bool                                              { BoolT }
-  | "(" Types ")"                                     { TupleT $2 }
+  | "(" Types ")"                                     { TupleT (reverse $2) }
 
 Types           
   : Types "," Type                                    { $3 : $1 }
@@ -89,7 +91,7 @@ Parameter
 Expr            
   : if "(" Expr ")" Expr                              { If $3 $5 }
   | if "(" Expr ")" Expr otherwise Expr               { IfElse $3 $5 $7 }
-  | handle "(" Expr ")" "{" Handlers "}"              { Handle $3 $6 }
+  | handle "(" Expr ")" "{" Handlers "}"              { Handle $3 (reverse $6) }
   | Expr "=" Expr                                     { Equal $1 $3 }
   | Expr "=/=" Expr                                   { NotEqual $1 $3 }
   | Expr "<=" Expr                                    { BelowEqual $1 $3 }
@@ -109,18 +111,17 @@ Expr
   | True                                              { Boolean True }
   | False                                             { Boolean False }
   | ident                                             { Symbol $1 }
-  | ident "(" Args ")"                                { FSymbol $1 $3 }
+  | ident "(" Args ")"                                { FSymbol $1 (reverse $3) }
   | "(" Expr ")"                                      { Parent $2 }
-  | "(" Tuple ")"                                     { Tuple $2 }
+  | "(" Tuple ")"                                     { Tuple (reverse $2) }
+  | trivial                                           { Trivial }
 
 Handlers            
   : Handlers "\n" Handler                             { $3 : $1 }
   | Handler                                           { [$1] }
-  | {- empty -}                                       { [] }
 
 Handler           
-  : Handles "=>" Expr                                 { Case $1 $3 }
-  | trivial "=>" Expr                                 { Trivial $3 }
+  : Handles "=>" Expr                                 { Case (reverse $1) $3 }
   | {- empty -}                                       { Empty }
 
 Handles           
@@ -172,11 +173,11 @@ data Expr
     | FSymbol String [Expr]
     | Parent Expr
     | Tuple [Expr]
+    | Trivial
   deriving Show
 
 data Handler
     = Case [Expr] Expr
-    | Trivial Expr
     | Empty
   deriving Show
 

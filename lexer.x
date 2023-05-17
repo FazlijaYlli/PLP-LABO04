@@ -1,4 +1,7 @@
 {
+{-
+  Auteurs : Rui Manuel Mota Carneiro & Ylli Fazlija
+-}
 module Lexer (Token(..),lexer) where
 }
 
@@ -11,16 +14,14 @@ $alnum = [$alpha$digits]
 
 @id = $alpha $alnum*
 @comment = \#
-@multicom = "/*"(.|\n)*"*/"
 @integer = $digits+
 
 -- RULES OF LEXERS
 tokens :-
 -- SKIP WHITESPACE AND COMMENTS
-    $white*\n                       { \s -> TInstrEnd }
+    $white*\n$white*                { \s -> TInstrEnd }
     $white+                         ;
     @comment.*                      ;
-    @multicom                       ;
 
 -- BOOLEANS
     True                            { \s -> TTrue }
@@ -33,10 +34,8 @@ tokens :-
 
 -- KEYWORDS
     func                            { \s -> TFunc }
-    return                          { \s -> TReturn }
     handle                          { \s -> THandle }
     trivial                         { \s -> TTrivial}
-    snap                            { \s -> TSnap }
     if                              { \s -> TIf }
     otherwise                       { \s -> TOtherwise }
     fixed                           { \s -> TFixed }
@@ -64,10 +63,8 @@ data Token
     | TVoid
 -- KEYWORDS
     | TFunc
-    | TReturn
     | THandle
     | TTrivial
-    | TSnap
     | TIf
     | TOtherwise
     | TTrue

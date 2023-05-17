@@ -1,3 +1,6 @@
+# Auteurs
+Rui Manuel Mota Carneiro & Ylli Fazlija
+
 # Déclaration
 |**Types**|**Description**|
 |---|---|
@@ -36,6 +39,7 @@
 // handle prend une expression qu'il va essayer de match avec les cas décrits dans les accolades.
 // trivial est le cas par défaut qui s'exécute quand aucun autre cas n'est matché.
 // Les cas sont testées de haut en bas.
+// Le ; sert à séparer les cas.
 handle (expr) {
     5 => expr // Si expr vaut 5, on rentre dans ce cas
     -42, 7 => expr // Si expr vaut -42 OU 7, on rentre dans ce cas
@@ -65,5 +69,5 @@ handle (expr) {
 - `int_expr` est une expression de type `int`.
 - `bool_expr` est une expression de type `bool`.
 - les noms des variables sont uniquement alphabétiques. [A-Za-z]
-- `#` permets de faire un commentaire monoligne
-- `/*` permets de faire un commentaire multiligne. Le commentaire s'arrête dès qu'un `*/` est rencontré.
+- `#` permets de faire un commentaire monoligne.
+- Il n'y a pas de commentaires multilignes.
