@@ -11,7 +11,6 @@
 
 |**Fonctions**|**Description**|
 |---|---|
-|`type func() f expr`|Déclaration d'une fonction f sans paramètres nommée f retournant type|
 |`type func(type param) f expr`|Déclaration d'une fonction f à un paramètre nommé param de type 'type' retournant type|
 |`type func(type p1, type p2) f expr`|Déclaration d'une fonction f à deux paramètres p1 et p2, les deux de type 'type'.|
 
@@ -24,9 +23,8 @@
 
 |**Fonctions**|**Description**|
 |---|---|
-|`f()`|Appel à la fonction f qui ne prend aucun paramètres.|
 |`f(var, -4)`|Appel à la fonction f qui prend deux paramètres. Une variable et un entier litéral.|
-|`fixed int result f(g())`|Stockage du résultat de la fonction f qui prend en paramètre le résultat de la fonction g dans une constante result.|
+|`fixed int result f(g(5))`|Stockage du résultat de la fonction f qui prend en paramètre le résultat de la fonction g dans une constante result.|
 
 |**Conditions**|**Description**|
 |---|---|
@@ -39,9 +37,9 @@
 // trivial est le cas par défaut qui s'exécute quand aucun autre cas n'est matché.
 // Les cas sont testées de haut en bas.
 handle (expr) {
-    5 => { ... } // Si expr vaut 5, on rentre dans ce cas
+    5 => expr // Si expr vaut 5, on rentre dans ce cas
     -42, 7 => expr // Si expr vaut -42 OU 7, on rentre dans ce cas
-    trivial => expr // On rentre TOUJOURS dans ce cas si on y arrive.
+    trivial => expr // On rentre TOUJOURS dans ce cas si on y arrive.    
 }
 ```
 
