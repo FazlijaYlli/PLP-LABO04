@@ -39,10 +39,10 @@ Rui Manuel Mota Carneiro & Ylli Fazlija
 // handle prend une expression qu'il va essayer de match avec les cas décrits dans les accolades.
 // trivial est le cas par défaut qui s'exécute quand aucun autre cas n'est matché.
 // Les cas sont testées de haut en bas.
-// Le ; sert à séparer les cas.
 handle (expr) {
     5 => expr // Si expr vaut 5, on rentre dans ce cas
     -42, 7 => expr // Si expr vaut -42 OU 7, on rentre dans ce cas
+    (trivial, 5) => expr // Si expr vaut un tuple dont la 2ème valeur est 5, on rentre dans ce cas
     trivial => expr // On rentre TOUJOURS dans ce cas si on y arrive.    
 }
 ```
